@@ -310,15 +310,13 @@ public class ID3 {
 
         }
 
-        /*  This function creates the decision tree and prints it in the form of rules on the console
-        */
         public void createDecisionTree() {
                 decomposeNode(root);
                 printTree(root, "");
         }
 
 
-        /* Here is the definition of the main function */
+      
         public static void main(String[] args) throws Exception
         {
 
