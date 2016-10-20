@@ -11,27 +11,16 @@ import java.util.*;
 public class ID3 {
 
 
-        int numAttributes;              // The number of attributes including the output attribute
-        String []attributeNames;        // The names of all attributes.  It is an array of dimension numAttributes.  The last attribute is the output attribute
+        int numAttributes;             
+        String []attributeNames;        
         private int atributoClase;
-        /* Possible values for each attribute is stored in a vector.  domains is an array of dimension numAttributes.
-                Each element of this array is a vector that contains values for the corresponding attribute
-                domains[0] is a vector containing the values of the 0-th attribute, etc..
-                The last attribute is the output attribute
-        */
+        
         Vector []domains;
 
-        /*  The class to represent a data point consisting of numAttributes values of attributes  */
+    
         class DataPoint {
 
-                /* The values of all attributes stored in this array.  i-th element in this array
-                   is the index to the element in the vector domains representing the symbolic value of
-                   the attribute.  For example, if attributes[2] is 1, then the actual value of the
-                   2-nd attribute is obtained by domains[2].elementAt(1).  This representation makes
-                   comparing values of attributes easier - it involves only integer comparison and
-                   no string comparison.
-                   The last attribute is the output attribute
-                */
+               
                 public int []attributes;
 
                 public DataPoint(int numattributes) {
@@ -40,15 +29,14 @@ public class ID3 {
         };
 
 
-        /* The class to represent a node in the decomposition tree.
-        */
+       
         class TreeNode {
-                public double entropy;                  // The entropy of data points if this node is a leaf node
-                public Vector data;                     // The set of data points if this is a leaf node
-                public int decompositionAttribute;      // If this is not a leaf node, the attribute that is used to divide the set of data points
-                public int decompositionValue;          // the attribute-value that is used to divide the parent node
-                public TreeNode []children;             // If this is not a leaf node, references to the children nodes
-                public TreeNode parent;                 // The parent to this node.  The root has parent == null
+                public double entropy;                  
+                public Vector data;                     
+                public int decompositionAttribute;      
+                public int decompositionValue;         
+                public TreeNode []children;             
+                public TreeNode parent;                
 
                 public TreeNode() {
                         data = new Vector();
@@ -56,13 +44,11 @@ public class ID3 {
 
         };
 
-        /*  The root of the decomposition tree  */
+      
         TreeNode root = new TreeNode();
 
 
-        /*  This function returns an integer corresponding to the symbolic value of the attribute.
-                If the symbol does not exist in the domain, the symbol is added to the domain of the attribute
-        */
+    
         public int getSymbolValue(int attribute, String symbol) {
                 int index = domains[attribute].indexOf(symbol);
                 
@@ -73,7 +59,7 @@ public class ID3 {
                 return index;
         }
 
-        /*  Returns all the values of the specified attribute in the data set  */
+        
         public int []getAllValues(Vector data, int attribute) {
                 Vector values = new Vector();
                 int num = data.size();
@@ -96,7 +82,7 @@ public class ID3 {
         }
 
 
-        /*  Returns a subset of data, in which the value of the specfied attribute of all data points is the specified value  */
+       
         public Vector getSubset(Vector data, int attribute, int value) {
                 Vector subset = new Vector();
 
@@ -110,9 +96,7 @@ public class ID3 {
         }
 
 
-        /*  Calculates the entropy of the set of data points.
-                The entropy is calculated using the values of the output attribute which is the last element in the array attribtues
-        */
+      
         public double calculateEntropy(Vector data) {
 
                 int numdata = data.size();
@@ -134,10 +118,7 @@ public class ID3 {
 
         }
 
-        /*  This function checks if the specified attribute is used to decompose the data set
-                in any of the parents of the specfied node in the decomposition tree.
-                Recursively checks the specified node as well as all parents
-        */
+        
         public boolean alreadyUsedToDecompose(TreeNode node, int attribute) {
                 if (node.children != null) {
                         if (node.decompositionAttribute == attribute )
@@ -147,12 +128,7 @@ public class ID3 {
                 return alreadyUsedToDecompose(node.parent, attribute);
         }
 
-        /*  This function decomposes the specified node according to the id3 algorithm.
-                Recursively divides all children nodes until it is not possible to divide any further
-                I have changed this code from my earlier version. I believe that the code
-                in my earlier version prevents useless decomposition and results in a better decision tree!
-                This is a more faithful implementation of the standard id3 algorithm
-        */
+    
         public void decomposeNode(TreeNode node) {
 
                 double bestEntropy=0;
@@ -164,9 +140,7 @@ public class ID3 {
                 node.entropy = calculateEntropy(node.data);
                 if (node.entropy == 0) return;
 
-                /*  In the following two loops, the best attribute is located which
-                        causes maximum decrease in entropy
-                */
+               
                 for (int i=0; i< numinputattributes; i++) {
 
                     if ( atributoClase == i ) {
@@ -176,16 +150,16 @@ public class ID3 {
 
                         int numvalues = domains[i].size();
                         if ( alreadyUsedToDecompose(node, i) ) continue;
-                        // Use the following variable to store the entropy for the test node created with the attribute i
+                       
                         double averageentropy = 0;
                         for (int j=0; j< numvalues; j++) {
                                 Vector subset = getSubset(node.data, i, j);
                                 if (subset.size() == 0) continue;
                                 double subentropy = calculateEntropy(subset);
-                                averageentropy += subentropy * subset.size();  // Weighted sum
+                                averageentropy += subentropy * subset.size(); 
                         }
 
-                        averageentropy = averageentropy / numdata;   // Taking the weighted average
+                        averageentropy = averageentropy / numdata;   
                         if (selected == false) {
                           selected = true;
                           bestEntropy = averageentropy;
@@ -202,7 +176,7 @@ public class ID3 {
 
                 if (selected == false) return;
 
-                // Now divide the dataset using the selected attribute
+                
                 int numvalues = domains[selectedAttribute].size();
                 node.decompositionAttribute = selectedAttribute;
                 node.children = new TreeNode [numvalues];
@@ -213,25 +187,16 @@ public class ID3 {
                   node.children[j].decompositionValue = j;
                 }
 
-                // Recursively divides children nodes
+              
                 for (int j=0; j< numvalues; j++) {
                   decomposeNode(node.children[j]);
                 }
 
-                // There is no more any need to keep the original vector.  Release this memory
-                node.data = null;               // Let the garbage collector recover this memory
+                
+                node.data = null;               
 
         }
 
-
-        /** Function to read the data file.
-                The first line of the data file should contain the names of all attributes.
-                The number of attributes is inferred from the number of words in this line.
-                The last word is taken as the name of the output attribute.
-                Each subsequent line contains the values of attributes for a data point.
-                If any line starts with // it is taken as a comment and ignored.
-                Blank lines are also ignored.
-        */
         @SuppressWarnings("resource")
 		public int readData(String filename)  throws Exception {
 
@@ -306,16 +271,7 @@ public class ID3 {
 
                 return 1;
 
-        }       // End of function readData
-        //-----------------------------------------------------------------------
-
-        /*  This function prints the decision tree in the form of rules.
-                The action part of the rule is of the form
-                        outputAttribute = "symbolicValue"
-                or
-                        outputAttribute = { "Value1", "Value2", ..  }
-                The second form is printed if the node cannot be decomposed any further into an homogenous set
-        */
+        }      
         public void printTree(TreeNode node, String tab) {
 
                 int outputattr = atributoClase;
